@@ -17,5 +17,65 @@
     <button type="submit">Sign Up</button>
     </div>
   </form>
+  script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+  // ✅ Replace with your Firebase project config
+  const firebaseConfig = {
+    apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+  authDomain: "fit-track-be443.firebaseapp.com",
+  projectId: "fit-track-be443",
+  storageBucket: "fit-track-be443.firebasestorage.app",
+  messagingSenderId: "485684449281",
+  appId: "1:485684449281:web:88991ce3596959c0433000",
+  measurementId: "G-ZD4NTCKQH7"
+  };
+
+  // 🔥 Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const database = firebase.database();
+
+  // 🎯 Signup Form Handler
+  const form = document.getElementById("memberSignupForm");
+
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const name = form.name.value.trim();
+    const email = form.email.value.trim();
+    const phone = form.phone.value.trim();
+    const password = form.password.value.trim();
+
+    // ✅ Email Format Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      alert("Please enter a valid email address.");
+      return;
+    }
+
+    // ✅ Create user with Firebase Authentication
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+
+        // ✅ Save additional member data to Realtime Database
+        return database.ref("members/" + user.uid).set({
+          name,
+          email,
+          phone
+        });
+      })
+      .then(() => {
+        alert("Registration successful!");
+        window.location.href = "index.html"; // Redirect to login page
+      })
+      .catch((error) => {
+        alert("Signup failed: " + error.message);
+      });
+  });
+</script>
+
 </body>
 </html>
