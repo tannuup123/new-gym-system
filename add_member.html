@@ -17,10 +17,8 @@
     <input type="text" placeholder="Membership Plan" name="plan" required />
     <button type="submit">Add Member</button>
   </form>
-
- 
-
- <script>
+<script>
+    // ✅ Your Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
       authDomain: "fit-track-be443.firebaseapp.com",
@@ -31,23 +29,34 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
+    // 🔒 Mock Owner ID (You can replace this with dynamic ID from localStorage/session/user login)
+    const ownerId = "owner123"; // Change to actual owner ID as needed
+
     document.getElementById('memberForm').addEventListener('submit', function(e) {
       e.preventDefault();
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const phone = document.getElementById('phone').value;
-      const membership = document.getElementById('membership').value;
 
-      const newMemberRef = db.ref('members').push();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const amount = parseFloat(document.getElementById('amount').value.trim());
+
+      if (!name || !email || isNaN(amount)) {
+        alert("Please fill all fields correctly.");
+        return;
+      }
+
+      const newMemberRef = db.ref(`owners/${ownerId}/members`).push();
+
       newMemberRef.set({
         name,
         email,
-        phone,
-        membership
+        amount
       })
-      .then(() => alert("Member added successfully!"))
+      .then(() => alert("Member added under owner successfully!"))
       .catch((error) => alert("Error adding member: " + error.message));
     });
   </script>
+ 
+
+
 </body>
 </html>
