@@ -22,59 +22,63 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-  <script>
-    // Import Firebase SDKs
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+<script>
+    // ✅ Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+      authDomain: "fit-track-be443.firebaseapp.com",
+      projectId: "fit-track-be443",
+      storageBucket: "fit-track-be443.firebasestorage.app",
+      messagingSenderId: "485684449281",
+      appId: "1:485684449281:web:88991ce3596959c0433000",
+      measurementId: "G-ZD4NTCKQH7"
+    };
 
-// Your Firebase configuration
-const firebaseConfig = {
-  apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
-  authDomain: "fit-track-be443.firebaseapp.com",
-  projectId: "fit-track-be443",
-  storageBucket: "fit-track-be443.firebasestorage.app",
-  messagingSenderId: "485684449281",
-  appId: "1:485684449281:web:88991ce3596959c0433000",
-  measurementId: "G-ZD4NTCKQH7"
-};
+    // 🔥 Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
+    // 🎯 Handle Trainer Form Submission
+    const form = document.getElementById("trainerSignupForm");
 
-// Handle form submission
-const form = document.getElementById("trainerSignupForm");
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
 
-form.addEventListener("submit", function (e) {
-  e.preventDefault();
+      const name = form.name.value.trim();
+      const email = form.email.value.trim();
+      const phone = form.phone.value.trim();
+      const specialty = form.specialty.value.trim();
+      const password = form.password.value.trim();
 
-  const name = form.name.value.trim();
-  const email = form.email.value.trim();
-  const phone = form.phone.value.trim();
-  const specialty = form.specialty.value.trim();
-  const password = form.password.value;
+      // ✅ Validate Email Format
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        alert("Please enter a valid email address.");
+        return;
+      }
 
-  // Reference to trainers node
-  const trainersRef = ref(database, 'trainers');
-  const newTrainerRef = push(trainersRef);
+      // ✅ Create Trainer Account with Firebase Auth
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
 
-  set(newTrainerRef, {
-    name,
-    email,
-    phone,
-    specialty,
-    password
-  })
-    .then(() => {
-      alert("Trainer registered successfully!");
-      form.reset();
-    })
-    .catch((error) => {
-      console.error("Error registering trainer:", error);
-      alert("Error: Could not register trainer.");
+          // ✅ Save trainer details in Realtime Database
+          return database.ref("trainers/" + user.uid).set({
+            name,
+            email,
+            phone,
+            specialty
+          });
+        })
+        .then(() => {
+          alert("Trainer registered successfully!");
+          window.location.href = "index.html"; // redirect to login or dashboard
+        })
+        .catch((error) => {
+          alert("Signup failed: " + error.message);
+        });
     });
-});
-
   </script>
 </body>
 </html>
