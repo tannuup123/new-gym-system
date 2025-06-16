@@ -5,6 +5,10 @@
         <link rel="stylesheet" href="login.css">
        
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <script>
+  console.log("Firebase version:", firebase?.SDK_VERSION);
+</script>
+
     </head>
     <body>
         <form id="loginForm">
@@ -47,9 +51,7 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
 <script>
-  // ✅ Firebase Config
   const firebaseConfig = {
     apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
     authDomain: "fit-track-be443.firebaseapp.com",
@@ -60,12 +62,12 @@
     measurementId: "G-ZD4NTCKQH7"
   };
 
-  // 🔥 Initialize Firebase
+  // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const database = firebase.database();
 
-  // 👁 Toggle Password Visibility
+  // Toggle password visibility
   function togglePassword() {
     const passwordField = document.getElementById("password");
     const eyeIcon = document.getElementById("eyeIcon");
@@ -81,14 +83,14 @@
     }
   }
 
-  // 🚪 Login Handler
+  // Handle login
   document.getElementById("loginForm").addEventListener("submit", function (e) {
     e.preventDefault();
 
     const email = document.querySelector('input[name="email"]').value.trim();
-    const password = document.querySelector('input[name="password"]').value;
+    const password = document.querySelector('input[name="password"]').value.trim();
 
-    if (email === "" || password === "") {
+    if (!email || !password) {
       alert("Please enter both email and password.");
       return;
     }
@@ -96,16 +98,13 @@
     auth.signInWithEmailAndPassword(email, password)
       .then((userCredential) => {
         const uid = userCredential.user.uid;
-
-        // 🔍 Check role (member, trainer, or owner)
         const userTypes = ["members", "trainers", "owners"];
         let roleFound = false;
 
         userTypes.forEach((type) => {
-          database.ref(`${type}/${uid}`).once("value", (snapshot) => {
+          database.ref(`${type}/${uid}`).once("value").then((snapshot) => {
             if (snapshot.exists() && !roleFound) {
               roleFound = true;
-              // ✅ Redirect to respective dashboard
               switch (type) {
                 case "members":
                   window.location.href = "member_dashboard.html";
@@ -121,18 +120,20 @@
           });
         });
 
-        // If user type isn't found
         setTimeout(() => {
           if (!roleFound) {
             alert("User role not found in database.");
           }
-        }, 2000); // wait 2 seconds for role check
+        }, 2000);
       })
       .catch((error) => {
         alert("Login failed: " + error.message);
+        console.error("Login error:", error);
       });
   });
 </script>
+
+
 
     </body>
 </html>
