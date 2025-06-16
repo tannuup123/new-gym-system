@@ -19,5 +19,59 @@
     <button type="submit">Register</button>
     </div>
   </form>
+  <script>
+    // Import Firebase SDKs
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, push, set } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+// Your Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyC-oca5z39s7l77EDY_Jx1psRroWtfZ2pM",
+  authDomain: "fit-track-be443.firebaseapp.com",
+  projectId: "fit-track-be443",
+  storageBucket: "fit-track-be443.firebasestorage.app",
+  messagingSenderId: "485684449281",
+  appId: "1:485684449281:web:88991ce3596959c0433000",
+  measurementId: "G-ZD4NTCKQH7"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
+// Handle form submission
+const form = document.getElementById("trainerSignupForm");
+
+form.addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const name = form.name.value.trim();
+  const email = form.email.value.trim();
+  const phone = form.phone.value.trim();
+  const specialty = form.specialty.value.trim();
+  const password = form.password.value;
+
+  // Reference to trainers node
+  const trainersRef = ref(database, 'trainers');
+  const newTrainerRef = push(trainersRef);
+
+  set(newTrainerRef, {
+    name,
+    email,
+    phone,
+    specialty,
+    password
+  })
+    .then(() => {
+      alert("Trainer registered successfully!");
+      form.reset();
+    })
+    .catch((error) => {
+      console.error("Error registering trainer:", error);
+      alert("Error: Could not register trainer.");
+    });
+});
+
+  </script>
 </body>
 </html>
